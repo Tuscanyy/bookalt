@@ -11,29 +11,31 @@
 
 <style>
   :root {
-    --bg: #0d0d0f;
-    --bg2: #141418;
-    --bg3: #1c1c22;
-    --border: rgba(255,255,255,0.08);
-    --border-accent: rgba(255,200,100,0.3);
-    --text: #f0ede8;
-    --text-muted: #8a8480;
-    --text-dim: #4a4845;
-    --gold: #f5c842;
-    --gold2: #e8a820;
-    --red: #e05252;
-    --blue: #5b9cf6;
-    --green: #52c77a;
+    --bg: #0e1117;
+    --bg2: #161b27;
+    --bg3: #1e2535;
+    --border: rgba(255,255,255,0.07);
+    --border-accent: rgba(56,189,196,0.35);
+    --text: #e8edf5;
+    --text-muted: #7a8499;
+    --text-dim: #3e4a60;
+    --accent: #38bdc4;
+    --accent2: #2a9da4;
+    --gold: #38bdc4;
+    --gold2: #2a9da4;
+    --red: #e05c6a;
+    --blue: #6ba3f5;
+    --green: #4dcb8a;
     --purple: #9b72e8;
-    --teal: #3ecfcf;
+    --teal: #38bdc4;
     --orange: #f0924a;
-    --chart-1: #f5c842;
-    --chart-2: #5b9cf6;
-    --chart-3: #52c77a;
-    --chart-4: #e05252;
+    --chart-1: #38bdc4;
+    --chart-2: #6ba3f5;
+    --chart-3: #4dcb8a;
+    --chart-4: #e05c6a;
     --chart-5: #9b72e8;
     --chart-6: #f0924a;
-    --chart-7: #3ecfcf;
+    --chart-7: #f5c842;
     --chart-8: #f06292;
     --chart-9: #aed581;
     --chart-10: #80cbc4;
@@ -55,14 +57,14 @@
     padding: 3rem 2rem 2rem;
     text-align: center;
     border-bottom: 1px solid var(--border);
-    background: linear-gradient(180deg, rgba(245,200,66,0.06) 0%, transparent 100%);
+    background: linear-gradient(180deg, rgba(56,189,196,0.05) 0%, transparent 100%);
     overflow: hidden;
   }
   header::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(245,200,66,0.12) 0%, transparent 70%);
+    background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(56,189,196,0.1) 0%, transparent 70%);
     pointer-events: none;
   }
   .header-eyebrow {
@@ -71,7 +73,7 @@
     font-weight: 600;
     letter-spacing: 0.25em;
     text-transform: uppercase;
-    color: var(--gold);
+    color: var(--accent);
     margin-bottom: 0.75rem;
     opacity: 0.9;
   }
@@ -84,7 +86,7 @@
     color: var(--text);
   }
   h1 em {
-    color: var(--gold);
+    color: var(--accent);
     font-style: italic;
   }
   .header-sub {
@@ -118,16 +120,16 @@
     text-decoration: none;
   }
   .btn-gold {
-    background: var(--gold);
-    color: #0d0d0f;
+    background: var(--accent);
+    color: #0e1117;
   }
-  .btn-gold:hover { background: #ffd84a; transform: translateY(-1px); }
+  .btn-gold:hover { background: #4dd0d7; transform: translateY(-1px); }
   .btn-ghost {
     background: var(--bg3);
     color: var(--text-muted);
     border: 1px solid var(--border);
   }
-  .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
 
   /* ── LAYOUT ── */
   main { max-width: 1400px; margin: 0 auto; padding: 2rem; }
@@ -216,7 +218,7 @@
   .progress-fill {
     height: 100%;
     border-radius: 999px;
-    background: linear-gradient(90deg, var(--gold2), var(--gold));
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
     transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);
     position: relative;
   }
@@ -226,10 +228,10 @@
     right: 0; top: 50%;
     transform: translate(50%, -50%);
     width: 16px; height: 16px;
-    background: var(--gold);
+    background: var(--accent);
     border-radius: 50%;
     border: 3px solid var(--bg2);
-    box-shadow: 0 0 12px rgba(245,200,66,0.5);
+    box-shadow: 0 0 12px rgba(56,189,196,0.5);
   }
   .progress-expected {
     position: absolute;
@@ -349,7 +351,7 @@
     outline: none;
     transition: border-color 0.2s;
   }
-  input[type="text"]:focus { border-color: var(--gold); }
+  input[type="text"]:focus { border-color: var(--accent); }
   input[type="text"]::placeholder { color: var(--text-dim); }
   select {
     background: var(--bg3);
@@ -369,7 +371,7 @@
     background-position: right 0.75rem center;
     padding-right: 2rem;
   }
-  select:focus { border-color: var(--gold); }
+  select:focus { border-color: var(--accent); }
   .filter-chip {
     background: var(--bg3);
     border: 1px solid var(--border);
@@ -382,8 +384,8 @@
     transition: all 0.15s;
     user-select: none;
   }
-  .filter-chip.active { background: var(--gold); color: #0d0d0f; border-color: var(--gold); }
-  .filter-chip:hover:not(.active) { border-color: var(--gold); color: var(--gold); }
+  .filter-chip.active { background: var(--accent); color: #0e1117; border-color: var(--accent); }
+  .filter-chip:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
   .results-count {
     font-size: 0.78rem;
     color: var(--text-dim);
@@ -450,7 +452,7 @@
     margin-bottom: 0.25rem;
     color: var(--text);
   }
-  .book-author { font-size: 0.78rem; color: var(--gold); margin-bottom: 0.6rem; font-weight: 500; }
+  .book-author { font-size: 0.78rem; color: var(--accent); margin-bottom: 0.6rem; font-weight: 500; }
   .book-meta { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.6rem; }
   .tag {
     display: inline-block;
@@ -473,7 +475,7 @@
     padding: 0.6rem 1rem;
     background: rgba(0,0,0,0.15);
   }
-  .stars { color: var(--gold); font-size: 0.9rem; letter-spacing: 0.05em; }
+  .stars { color: #f5c842; font-size: 0.9rem; letter-spacing: 0.05em; }
   .book-date { font-size: 0.7rem; color: var(--text-dim); }
 
   /* Currently reading badge */
@@ -566,17 +568,17 @@
     transition: all 0.2s;
     z-index: 100;
   }
-  .dark-toggle:hover { border-color: var(--gold); transform: scale(1.05); }
+  .dark-toggle:hover { border-color: var(--accent); transform: scale(1.05); }
 
   body.light-mode {
-    --bg: #f5f3ef;
+    --bg: #f0f4f8;
     --bg2: #ffffff;
-    --bg3: #ede9e2;
+    --bg3: #e4eaf2;
     --border: rgba(0,0,0,0.1);
-    --border-accent: rgba(200,140,30,0.4);
-    --text: #1a1815;
-    --text-muted: #6b6660;
-    --text-dim: #a09890;
+    --border-accent: rgba(30,150,158,0.4);
+    --text: #0e1117;
+    --text-muted: #5a6478;
+    --text-dim: #9aA0b0;
   }
 
   /* Responsive */
@@ -819,15 +821,47 @@ function renderPieChart(id, dataObj) {
 }
 
 // ── MONTHLY BAR CHART ──
+function parseMonth(dateStr) {
+  if (!dateStr) return -1;
+  const s = dateStr.trim();
+
+  // MM/DD/YYYY or DD/MM/YYYY — try both; we just need the month index
+  // Try slash-separated
+  const slashParts = s.split('/');
+  if (slashParts.length >= 2) {
+    // Could be MM/DD/YYYY or DD/MM/YYYY
+    // We'll try parsing as a JS Date first (handles MM/DD/YYYY naturally)
+    const d = new Date(s);
+    if (!isNaN(d)) return d.getMonth();
+    // Fallback: assume first number is month (1-based)
+    const m = parseInt(slashParts[0]);
+    if (m >= 1 && m <= 12) return m - 1;
+    const m2 = parseInt(slashParts[1]);
+    if (m2 >= 1 && m2 <= 12) return m2 - 1;
+  }
+
+  // Dash-separated: YYYY-MM-DD or DD-MM-YYYY
+  const dashParts = s.split('-');
+  if (dashParts.length >= 2) {
+    const d = new Date(s);
+    if (!isNaN(d)) return d.getMonth();
+    const m = parseInt(dashParts[1]);
+    if (m >= 1 && m <= 12) return m - 1;
+  }
+
+  // Try native Date parse as last resort
+  const d = new Date(s);
+  if (!isNaN(d)) return d.getMonth();
+
+  return -1;
+}
+
 function renderMonthlyChart(finished) {
   const months = Array(12).fill(0);
   const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   finished.forEach(b => {
-    if (!b.DateFinished) return;
-    const parts = b.DateFinished.split('/');
-    if (parts.length < 2) return;
-    const m = parseInt(parts[0]) - 1;
-    if (m >= 0 && m < 12) months[m]++;
+    const m = parseMonth(b.DateFinished);
+    if (m >= 0) months[m]++;
   });
 
   if (chartInstances['monthly']) chartInstances['monthly'].destroy();
@@ -839,7 +873,7 @@ function renderMonthlyChart(finished) {
       datasets: [{
         label: 'Books',
         data: months,
-        backgroundColor: months.map((v, i) => v > 0 ? CHART_COLORS[0] : 'rgba(255,255,255,0.05)'),
+        backgroundColor: months.map(v => v > 0 ? CHART_COLORS[0] : 'rgba(255,255,255,0.05)'),
         borderRadius: 4,
         borderWidth: 0,
       }]
@@ -848,8 +882,8 @@ function renderMonthlyChart(finished) {
       responsive: true, maintainAspectRatio: false,
       plugins: { legend: { display: false } },
       scales: {
-        x: { ticks: { color: '#8a8480', font: { size: 10 } }, grid: { display: false } },
-        y: { ticks: { color: '#8a8480', font: { size: 10 }, stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true }
+        x: { ticks: { color: '#7a8499', font: { size: 10 } }, grid: { display: false } },
+        y: { ticks: { color: '#7a8499', font: { size: 10 }, stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true }
       }
     }
   });
