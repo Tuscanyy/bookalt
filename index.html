@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dan's Book Tracker 2026</title>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><text y='32' font-size='32'>📚</text></svg>">
+
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --bg2: #141418;
+    --bg3: #1c1c22;
+    --border: rgba(255,255,255,0.08);
+    --border-accent: rgba(255,200,100,0.3);
+    --text: #f0ede8;
+    --text-muted: #8a8480;
+    --text-dim: #4a4845;
+    --gold: #f5c842;
+    --gold2: #e8a820;
+    --red: #e05252;
+    --blue: #5b9cf6;
+    --green: #52c77a;
+    --purple: #9b72e8;
+    --teal: #3ecfcf;
+    --orange: #f0924a;
+    --chart-1: #f5c842;
+    --chart-2: #5b9cf6;
+    --chart-3: #52c77a;
+    --chart-4: #e05252;
+    --chart-5: #9b72e8;
+    --chart-6: #f0924a;
+    --chart-7: #3ecfcf;
+    --chart-8: #f06292;
+    --chart-9: #aed581;
+    --chart-10: #80cbc4;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: relative;
+    padding: 3rem 2rem 2rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(245,200,66,0.06) 0%, transparent 100%);
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(245,200,66,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header-eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.75rem;
+    opacity: 0.9;
+  }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  h1 em {
+    color: var(--gold);
+    font-style: italic;
+  }
+  .header-sub {
+    margin-top: 1rem;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+  }
+  .header-links {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.55rem 1.2rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    text-decoration: none;
+  }
+  .btn-gold {
+    background: var(--gold);
+    color: #0d0d0f;
+  }
+  .btn-gold:hover { background: #ffd84a; transform: translateY(-1px); }
+  .btn-ghost {
+    background: var(--bg3);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* ── LAYOUT ── */
+  main { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+
+  /* ── SKELETON ── */
+  .skeleton {
+    background: linear-gradient(90deg, var(--bg3) 25%, var(--bg2) 50%, var(--bg3) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 0.5rem;
+  }
+  @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+  /* ── STAT CARDS ── */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .stat-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: 1.25rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .stat-card:hover { border-color: var(--border-accent); transform: translateY(-2px); }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent, var(--gold));
+  }
+  .stat-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.4rem;
+  }
+  .stat-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+  }
+  .stat-sub {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    margin-top: 0.3rem;
+  }
+
+  /* ── PROGRESS BAR ── */
+  .progress-section {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 1rem;
+  }
+  .progress-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+  .progress-meta { font-size: 0.8rem; color: var(--text-muted); }
+  .progress-track {
+    height: 10px;
+    background: var(--bg3);
+    border-radius: 999px;
+    position: relative;
+    overflow: visible;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--gold2), var(--gold));
+    transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+    position: relative;
+  }
+  .progress-fill::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 50%;
+    transform: translate(50%, -50%);
+    width: 16px; height: 16px;
+    background: var(--gold);
+    border-radius: 50%;
+    border: 3px solid var(--bg2);
+    box-shadow: 0 0 12px rgba(245,200,66,0.5);
+  }
+  .progress-expected {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 2px;
+    height: 18px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 1px;
+  }
+  .progress-expected::after {
+    content: attr(data-label);
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .progress-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.75rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  /* ── CHARTS GRID ── */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .chart-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: 1.5rem;
+  }
+  .chart-card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--text);
+  }
+  .chart-wrap { position: relative; height: 200px; }
+
+  /* ── HORIZONTAL SEGMENT BAR ── */
+  .seg-bar {
+    height: 36px;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    display: flex;
+    margin-bottom: 0.75rem;
+  }
+  .seg {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: rgba(0,0,0,0.8);
+    transition: filter 0.2s;
+    white-space: nowrap;
+    overflow: hidden;
+    padding: 0 0.5rem;
+  }
+  .seg:hover { filter: brightness(1.1); }
+  .seg-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+  .seg-legend-item { display: flex; align-items: center; gap: 0.35rem; }
+  .seg-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+
+  /* ── FILTERS ── */
+  .filters-bar {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+  }
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+  }
+  .search-wrap svg {
+    position: absolute;
+    left: 0.9rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+  input[type="text"] {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    padding: 0.6rem 0.9rem 0.6rem 2.4rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input[type="text"]:focus { border-color: var(--gold); }
+  input[type="text"]::placeholder { color: var(--text-dim); }
+  select {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    padding: 0.6rem 0.9rem;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a8480' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2rem;
+  }
+  select:focus { border-color: var(--gold); }
+  .filter-chip {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.4rem 1rem;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .filter-chip.active { background: var(--gold); color: #0d0d0f; border-color: var(--gold); }
+  .filter-chip:hover:not(.active) { border-color: var(--gold); color: var(--gold); }
+  .results-count {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    margin-left: auto;
+  }
+
+  /* ── BOOK GRID ── */
+  .book-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.25rem;
+  }
+  .book-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    animation: fadeUp 0.4s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .book-card:hover {
+    border-color: var(--border-accent);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+  }
+  .book-card-inner { display: flex; gap: 0; flex: 1; }
+  .book-cover-wrap {
+    flex-shrink: 0;
+    width: 100px;
+    position: relative;
+    overflow: hidden;
+    background: var(--bg3);
+  }
+  .book-cover-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .book-cover-wrap img.loaded { opacity: 1; }
+  .book-cover-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: var(--text-dim);
+  }
+  .book-body { padding: 1rem 1rem 1rem 1rem; flex: 1; min-width: 0; }
+  .book-title-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 0.25rem;
+    color: var(--text);
+  }
+  .book-author { font-size: 0.78rem; color: var(--gold); margin-bottom: 0.6rem; font-weight: 500; }
+  .book-meta { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.6rem; }
+  .tag {
+    display: inline-block;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    border: 1px solid;
+  }
+  .tag-fiction { color: var(--blue); border-color: rgba(91,156,246,0.3); background: rgba(91,156,246,0.1); }
+  .tag-nonfiction { color: var(--green); border-color: rgba(82,199,122,0.3); background: rgba(82,199,122,0.1); }
+  .tag-genre { color: var(--purple); border-color: rgba(155,114,232,0.3); background: rgba(155,114,232,0.1); }
+  .tag-lang { color: var(--teal); border-color: rgba(62,207,207,0.3); background: rgba(62,207,207,0.1); }
+  .book-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border);
+    padding: 0.6rem 1rem;
+    background: rgba(0,0,0,0.15);
+  }
+  .stars { color: var(--gold); font-size: 0.9rem; letter-spacing: 0.05em; }
+  .book-date { font-size: 0.7rem; color: var(--text-dim); }
+
+  /* Currently reading badge */
+  .currently-reading-badge {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    background: var(--gold);
+    color: #0d0d0f;
+    font-size: 0.55rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+  }
+
+  /* ── SECTION TITLE ── */
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--text);
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── ERROR STATE ── */
+  .error-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-muted);
+  }
+  .error-state .icon { font-size: 3rem; margin-bottom: 1rem; }
+  .error-state p { margin-bottom: 0.5rem; }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-muted);
+  }
+
+  /* ── DIVIDER ── */
+  hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+  /* ── MONTHLY CHART ── */
+  .monthly-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── DARK MODE TOGGLE ── */
+  .dark-toggle {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    transition: all 0.2s;
+    z-index: 100;
+  }
+  .dark-toggle:hover { border-color: var(--gold); transform: scale(1.05); }
+
+  body.light-mode {
+    --bg: #f5f3ef;
+    --bg2: #ffffff;
+    --bg3: #ede9e2;
+    --border: rgba(0,0,0,0.1);
+    --border-accent: rgba(200,140,30,0.4);
+    --text: #1a1815;
+    --text-muted: #6b6660;
+    --text-dim: #a09890;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    main { padding: 1rem; }
+    .book-grid { grid-template-columns: 1fr; }
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="header-eyebrow">Reading Journal · 2026</p>
+  <h1>Dan's <em>Book</em> Tracker</h1>
+  <p class="header-sub">In 2026 I set a goal to read 100 books and built this to track my progress. — Daniel Moore</p>
+  <div class="header-links">
+    <a href="https://www.linkedin.com/in/daniel-moore-485b92120/" target="_blank" class="btn btn-gold">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
+      LinkedIn
+    </a>
+    <button class="btn btn-ghost" id="darkToggleBtn" onclick="toggleTheme()">☀️ Light Mode</button>
+  </div>
+</header>
+
+<main id="main">
+  <!-- Skeleton while loading -->
+  <div id="loadingState">
+    <div class="stat-grid" style="margin-bottom:2rem;">
+      <div class="skeleton" style="height:90px;"></div>
+      <div class="skeleton" style="height:90px;"></div>
+      <div class="skeleton" style="height:90px;"></div>
+      <div class="skeleton" style="height:90px;"></div>
+    </div>
+    <div class="skeleton" style="height:80px; margin-bottom:2rem;"></div>
+    <div class="charts-grid">
+      <div class="skeleton" style="height:260px;"></div>
+      <div class="skeleton" style="height:260px;"></div>
+      <div class="skeleton" style="height:260px;"></div>
+    </div>
+  </div>
+
+  <!-- Error state (hidden by default) -->
+  <div id="errorState" style="display:none;">
+    <div class="error-state">
+      <div class="icon">📡</div>
+      <p style="font-size:1.2rem; font-weight:600; color: var(--text);">Couldn't load books</p>
+      <p>There was a problem fetching the spreadsheet data. Please try refreshing the page.</p>
+      <button class="btn btn-gold" style="margin-top:1rem;" onclick="init()">↻ Retry</button>
+    </div>
+  </div>
+
+  <!-- Content (hidden until loaded) -->
+  <div id="content" style="display:none;">
+
+    <!-- Stat Cards -->
+    <div class="stat-grid" id="statGrid"></div>
+
+    <!-- Progress -->
+    <div class="progress-section" id="progressSection"></div>
+
+    <!-- Charts -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-card-title">📚 Genre Breakdown</div>
+        <div class="chart-wrap"><canvas id="genreChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">🌍 Language</div>
+        <div class="chart-wrap"><canvas id="languageChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">📅 Books Per Month</div>
+        <div class="chart-wrap"><canvas id="monthlyChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Segment bars -->
+    <div class="charts-grid" style="grid-template-columns: repeat(auto-fit,minmax(260px,1fr))">
+      <div class="chart-card" id="fictionBar"></div>
+      <div class="chart-card" id="genderBar"></div>
+      <div class="chart-card" id="countryBar"></div>
+    </div>
+
+    <hr>
+
+    <!-- Currently Reading -->
+    <div id="currentlySection"></div>
+
+    <!-- Finished Books -->
+    <h2 class="section-title">Finished Books</h2>
+
+    <!-- Filters -->
+    <div class="filters-bar" id="filtersBar">
+      <div class="search-wrap">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="searchInput" placeholder="Search books or authors…">
+      </div>
+      <select id="genreFilter"><option value="">All Genres</option></select>
+      <select id="sortSelect">
+        <option value="newest">Newest First</option>
+        <option value="oldest">Oldest First</option>
+        <option value="rating-high">Rating: High → Low</option>
+        <option value="rating-low">Rating: Low → High</option>
+        <option value="title">Title A–Z</option>
+      </select>
+      <div class="filter-chip active" data-filter="all" onclick="setFictionFilter(this)">All</div>
+      <div class="filter-chip" data-filter="Fiction" onclick="setFictionFilter(this)">Fiction</div>
+      <div class="filter-chip" data-filter="Non-Fiction" onclick="setFictionFilter(this)">Non-Fiction</div>
+      <span class="results-count" id="resultsCount"></span>
+    </div>
+
+    <div class="book-grid" id="bookGrid"></div>
+  </div>
+</main>
+
+<footer>Built with 📚 & ☕ · Data from Google Sheets · Dan's 2026 Reading Challenge</footer>
+
+<script>
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSDLnokY9AAjmaXbQ4Ofk-jH6eK1mn9bXcgAid1xWU_2MbtoraDDL5IzoEYT7PPT-numSfmt0EJoS6a/pub?gid=1531654911&single=true&output=csv";
+const GOAL = 100;
+const CHART_COLORS = ['#f5c842','#5b9cf6','#52c77a','#e05252','#9b72e8','#f0924a','#3ecfcf','#f06292','#aed581','#80cbc4'];
+
+let allBooks = [];
+let finishedBooks = [];
+let fictionFilterVal = 'all';
+let chartInstances = {};
+
+// ── THEME ──
+function toggleTheme() {
+  document.body.classList.toggle('light-mode');
+  const btn = document.getElementById('darkToggleBtn');
+  btn.textContent = document.body.classList.contains('light-mode') ? '🌙 Dark Mode' : '☀️ Light Mode';
+  localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+}
+if (localStorage.getItem('theme') === 'light') {
+  document.body.classList.add('light-mode');
+  document.getElementById('darkToggleBtn').textContent = '🌙 Dark Mode';
+}
+
+// ── FETCH ──
+async function fetchBooks() {
+  const res = await fetch(CSV_URL);
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const text = await res.text();
+  const { data } = Papa.parse(text, { header: false, skipEmptyLines: true });
+  return data.slice(5).map((row, i) => ({
+    Book: row[0] || '',
+    Author: row[1] || '',
+    Fiction: row[2] || '',
+    Read: row[3] || '',
+    DateFinished: row[4] || '',
+    Rating: row[5] || '',
+    Gender: row[7] || '',
+    Language: row[8] || '',
+    Genre: (row[9] || '').trim() || 'Other',
+    Cover: row[10] || '',
+    Country: row[11] || '',
+    _idx: i
+  }));
+}
+
+// ── STARS ──
+function renderStars(rating) {
+  if (!rating) return '<span style="color:var(--text-dim)">Not rated</span>';
+  const r = parseFloat(rating);
+  const full = Math.floor(r), half = (r - full) >= 0.5 ? 1 : 0, empty = 5 - full - half;
+  return '<span class="stars">' + '★'.repeat(full) + (half ? '⯨' : '') + '<span style="opacity:0.3">' + '★'.repeat(empty) + '</span></span> <span style="color:var(--text-muted);font-size:0.75rem">' + r.toFixed(1) + '</span>';
+}
+
+// ── STATS ──
+function renderStats(finished) {
+  const rated = finished.filter(b => b.Rating);
+  const avgRating = rated.length ? (rated.reduce((s, b) => s + Number(b.Rating), 0) / rated.length).toFixed(1) : '-';
+  const uniqueAuthors = new Set(finished.map(b => b.Author)).size;
+  const uniqueGenres = new Set(finished.map(b => b.Genre)).size;
+
+  const stats = [
+    { label: 'Books Finished', value: finished.length, sub: `of ${GOAL} goal`, accent: '#f5c842' },
+    { label: 'Avg Rating', value: avgRating === '-' ? '-' : avgRating + '★', sub: `from ${rated.length} ratings`, accent: '#f0924a' },
+    { label: 'Authors Read', value: uniqueAuthors, sub: 'unique authors', accent: '#5b9cf6' },
+    { label: 'Genres Explored', value: uniqueGenres, sub: 'different genres', accent: '#52c77a' },
+  ];
+
+  document.getElementById('statGrid').innerHTML = stats.map(s => `
+    <div class="stat-card" style="--accent:${s.accent}">
+      <div class="stat-label">${s.label}</div>
+      <div class="stat-value">${s.value}</div>
+      <div class="stat-sub">${s.sub}</div>
+    </div>
+  `).join('');
+}
+
+// ── PROGRESS ──
+function renderProgress(finished) {
+  const count = finished.length;
+  const today = new Date(), start = new Date(today.getFullYear(), 0, 1), end = new Date(today.getFullYear(), 11, 31);
+  const yearFrac = (today - start) / (end - start);
+  const expected = Math.floor(GOAL * yearFrac);
+  const pct = Math.min((count / GOAL) * 100, 100);
+  const expPct = Math.min((expected / GOAL) * 100, 100);
+  const ahead = count - expected;
+  const aheadText = ahead > 0 ? `<span style="color:var(--green)">▲ ${ahead} ahead of pace</span>` : ahead < 0 ? `<span style="color:var(--red)">▼ ${Math.abs(ahead)} behind pace</span>` : `<span style="color:var(--gold)">On pace</span>`;
+
+  document.getElementById('progressSection').innerHTML = `
+    <div class="progress-header">
+      <span class="progress-title">2026 Reading Goal</span>
+      <span class="progress-meta">${count} / ${GOAL} books · ${aheadText}</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" style="width:${pct}%"></div>
+      <div class="progress-expected" style="left:${expPct}%" data-label="Expected: ${expected}"></div>
+    </div>
+    <div class="progress-labels">
+      <span>0</span>
+      <span style="position:absolute;left:${expPct}%;transform:translateX(-50%);margin-top:1.5rem;font-size:0.65rem;color:var(--text-muted)">Expected: ${expected}</span>
+      <span>${GOAL}</span>
+    </div>
+  `;
+}
+
+// ── PIE CHART ──
+function renderPieChart(id, dataObj) {
+  if (chartInstances[id]) chartInstances[id].destroy();
+  const labels = Object.keys(dataObj), values = Object.values(dataObj);
+  const ctx = document.getElementById(id);
+  chartInstances[id] = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels,
+      datasets: [{ data: values, backgroundColor: CHART_COLORS, borderWidth: 2, borderColor: getComputedStyle(document.documentElement).getPropertyValue('--bg2').trim() || '#141418' }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '60%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#8a8480', boxWidth: 10, padding: 8, font: { size: 11 } } }
+      }
+    }
+  });
+}
+
+// ── MONTHLY BAR CHART ──
+function renderMonthlyChart(finished) {
+  const months = Array(12).fill(0);
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  finished.forEach(b => {
+    if (!b.DateFinished) return;
+    const parts = b.DateFinished.split('/');
+    if (parts.length < 2) return;
+    const m = parseInt(parts[0]) - 1;
+    if (m >= 0 && m < 12) months[m]++;
+  });
+
+  if (chartInstances['monthly']) chartInstances['monthly'].destroy();
+  const ctx = document.getElementById('monthlyChart');
+  chartInstances['monthly'] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: monthNames,
+      datasets: [{
+        label: 'Books',
+        data: months,
+        backgroundColor: months.map((v, i) => v > 0 ? CHART_COLORS[0] : 'rgba(255,255,255,0.05)'),
+        borderRadius: 4,
+        borderWidth: 0,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#8a8480', font: { size: 10 } }, grid: { display: false } },
+        y: { ticks: { color: '#8a8480', font: { size: 10 }, stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true }
+      }
+    }
+  });
+}
+
+// ── SEGMENT BAR ──
+function renderSegBar(containerId, title, dataObj) {
+  const container = document.getElementById(containerId);
+  const total = Object.values(dataObj).reduce((a, b) => a + b, 0);
+  if (!total) { container.innerHTML = `<div class="chart-card-title">${title}</div><p style="color:var(--text-dim);font-size:0.8rem">No data</p>`; return; }
+
+  const entries = Object.entries(dataObj);
+  const barHTML = entries.map(([k, v], i) => {
+    const pct = ((v / total) * 100).toFixed(1);
+    return `<div class="seg" style="width:${pct}%;background:${CHART_COLORS[i % CHART_COLORS.length]}" title="${k}: ${v}">${pct > 15 ? k + ' (' + v + ')' : pct > 8 ? v : ''}</div>`;
+  }).join('');
+
+  const legendHTML = entries.map(([k, v], i) => `
+    <div class="seg-legend-item">
+      <div class="seg-dot" style="background:${CHART_COLORS[i % CHART_COLORS.length]}"></div>
+      <span>${k} <span style="color:var(--text-dim)">(${v})</span></span>
+    </div>
+  `).join('');
+
+  container.innerHTML = `
+    <div class="chart-card-title">${title}</div>
+    <div class="seg-bar">${barHTML}</div>
+    <div class="seg-legend">${legendHTML}</div>
+  `;
+}
+
+// ── CURRENTLY READING ──
+function renderCurrentlyReading(current) {
+  const section = document.getElementById('currentlySection');
+  if (!current.length) { section.innerHTML = ''; return; }
+  section.innerHTML = `<h2 class="section-title">Currently Reading</h2>
+    <div class="book-grid" style="margin-bottom:2rem">${current.map(bookCardHTML).join('')}</div>`;
+  lazyLoadImages();
+}
+
+// ── BOOK CARD ──
+function bookCardHTML(b, isCurrent = false) {
+  const fictionTag = b.Fiction.toLowerCase().includes('non-fiction')
+    ? `<span class="tag tag-nonfiction">Non-Fiction</span>`
+    : b.Fiction ? `<span class="tag tag-fiction">Fiction</span>` : '';
+  const coverHTML = b.Cover
+    ? `<img src="${b.Cover}" alt="cover" loading="lazy" onload="this.classList.add('loaded')">`
+    : `<div class="book-cover-placeholder">📖</div>`;
+
+  return `
+    <div class="book-card">
+      <div class="book-card-inner">
+        <div class="book-cover-wrap" style="min-height:140px">
+          ${isCurrent ? '<span class="currently-reading-badge">Reading</span>' : ''}
+          ${coverHTML}
+        </div>
+        <div class="book-body">
+          <div class="book-title-text">${b.Book || 'Untitled'}</div>
+          <div class="book-author">${b.Author || 'Unknown'}</div>
+          <div class="book-meta">
+            ${fictionTag}
+            ${b.Genre ? `<span class="tag tag-genre">${b.Genre}</span>` : ''}
+            ${b.Language ? `<span class="tag tag-lang">${b.Language}</span>` : ''}
+          </div>
+          ${b.Country ? `<div style="font-size:0.72rem;color:var(--text-dim)">📍 ${b.Country}</div>` : ''}
+        </div>
+      </div>
+      <div class="book-footer">
+        <div>${renderStars(b.Rating)}</div>
+        ${b.DateFinished ? `<div class="book-date">✓ ${b.DateFinished}</div>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+// ── LAZY LOAD ──
+function lazyLoadImages() {
+  document.querySelectorAll('img[loading="lazy"]').forEach(img => {
+    if (img.complete) img.classList.add('loaded');
+  });
+}
+
+// ── FILTERS & SORT ──
+function setFictionFilter(el) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  fictionFilterVal = el.dataset.filter;
+  renderBookGrid();
+}
+
+function renderBookGrid() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const genre = document.getElementById('genreFilter').value;
+  const sort = document.getElementById('sortSelect').value;
+
+  let books = finishedBooks.filter(b => {
+    if (fictionFilterVal !== 'all' && !b.Fiction.toLowerCase().includes(fictionFilterVal.toLowerCase())) return false;
+    if (genre && b.Genre !== genre) return false;
+    if (search && !b.Book.toLowerCase().includes(search) && !b.Author.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  if (sort === 'oldest') books = books.slice().reverse();
+  else if (sort === 'rating-high') books = books.slice().sort((a, b) => (Number(b.Rating) || 0) - (Number(a.Rating) || 0));
+  else if (sort === 'rating-low') books = books.slice().sort((a, b) => (Number(a.Rating) || 0) - (Number(b.Rating) || 0));
+  else if (sort === 'title') books = books.slice().sort((a, b) => a.Book.localeCompare(b.Book));
+
+  document.getElementById('resultsCount').textContent = `${books.length} book${books.length !== 1 ? 's' : ''}`;
+  const grid = document.getElementById('bookGrid');
+  if (!books.length) {
+    grid.innerHTML = '<div class="empty-state"><div style="font-size:3rem;margin-bottom:1rem">📭</div><p>No books match your filters.</p></div>';
+    return;
+  }
+  grid.innerHTML = books.map(b => bookCardHTML(b)).join('');
+  lazyLoadImages();
+}
+
+// ── INIT ──
+async function init() {
+  document.getElementById('loadingState').style.display = 'block';
+  document.getElementById('errorState').style.display = 'none';
+  document.getElementById('content').style.display = 'none';
+
+  try {
+    allBooks = await fetchBooks();
+
+    finishedBooks = allBooks.filter(b => b.Read && b.Read.toLowerCase() === 'finished').reverse();
+    const current = allBooks.filter(b => !b.Read || b.Read.toLowerCase() !== 'finished');
+
+    // Stats
+    renderStats(finishedBooks);
+    renderProgress(finishedBooks);
+
+    // Charts
+    const genreCount = {}, langCount = {}, fictionCount = {}, genderCount = {}, countryCount = {};
+    finishedBooks.forEach(b => {
+      genreCount[b.Genre] = (genreCount[b.Genre] || 0) + 1;
+      if (b.Language) langCount[b.Language] = (langCount[b.Language] || 0) + 1;
+      const fk = b.Fiction.toLowerCase().includes('non-fiction') ? 'Non-Fiction' : b.Fiction ? 'Fiction' : 'Unknown';
+      fictionCount[fk] = (fictionCount[fk] || 0) + 1;
+      if (b.Gender) genderCount[b.Gender] = (genderCount[b.Gender] || 0) + 1;
+      if (b.Country) countryCount[b.Country] = (countryCount[b.Country] || 0) + 1;
+    });
+
+    renderPieChart('genreChart', genreCount);
+    renderPieChart('languageChart', langCount);
+    renderMonthlyChart(finishedBooks);
+    renderSegBar('fictionBar', '📖 Fiction vs Non-Fiction', fictionCount);
+    renderSegBar('genderBar', '✍️ Author Gender', genderCount);
+    renderSegBar('countryBar', '🗺️ Country of Origin', countryCount);
+
+    // Genre filter options
+    const sel = document.getElementById('genreFilter');
+    Object.keys(genreCount).sort().forEach(g => {
+      const opt = document.createElement('option'); opt.value = g; opt.textContent = g; sel.appendChild(opt);
+    });
+
+    // Filters
+    document.getElementById('searchInput').addEventListener('input', renderBookGrid);
+    document.getElementById('genreFilter').addEventListener('change', renderBookGrid);
+    document.getElementById('sortSelect').addEventListener('change', renderBookGrid);
+
+    // Render
+    renderCurrentlyReading(current);
+    renderBookGrid();
+
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('errorState').style.display = 'block';
+  }
+}
+
+init();
+</script>
+</body>
+</html>
