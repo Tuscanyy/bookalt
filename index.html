@@ -18,7 +18,6 @@
   --text-muted:#a89070;
   --text-dim:  #5a4830;
   --accent:    #d4a843;
-  --accent2:   #b8892a;
   --border:    rgba(255,255,255,0.06);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -36,34 +35,18 @@ body{
 
 header{
   padding:2.5rem 2rem 1.5rem;
-  text-align:center;
-  position:relative;
+  text-align:center;position:relative;
   border-bottom:1px solid var(--border);
 }
 header::after{
   content:'';position:absolute;bottom:0;left:10%;right:10%;
-  height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);
-  opacity:0.4;
+  height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0.4;
 }
-.eyebrow{
-  font-size:0.65rem;font-weight:600;letter-spacing:0.3em;
-  text-transform:uppercase;color:var(--accent);margin-bottom:0.6rem;opacity:0.8;
-}
-h1{
-  font-family:'Libre Baskerville',serif;
-  font-size:clamp(2rem,5vw,3.5rem);
-  font-weight:700;color:var(--text);
-  letter-spacing:-0.01em;line-height:1.1;
-}
+.eyebrow{font-size:0.65rem;font-weight:600;letter-spacing:0.3em;text-transform:uppercase;color:var(--accent);margin-bottom:0.6rem;opacity:0.8;}
+h1{font-family:'Libre Baskerville',serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:700;color:var(--text);letter-spacing:-0.01em;line-height:1.1;}
 h1 em{color:var(--accent);font-style:italic;}
-.header-sub{
-  margin-top:0.6rem;color:var(--text-muted);font-size:0.82rem;
-  font-weight:300;letter-spacing:0.04em;
-}
-.load-status{
-  text-align:center;font-size:0.75rem;color:var(--text-muted);
-  margin-top:0.8rem;min-height:1.1rem;letter-spacing:0.04em;
-}
+.header-sub{margin-top:0.6rem;color:var(--text-muted);font-size:0.82rem;font-weight:300;letter-spacing:0.04em;}
+.load-status{text-align:center;font-size:0.75rem;color:var(--text-muted);margin-top:0.8rem;min-height:1.1rem;letter-spacing:0.04em;}
 .loading-dots span{animation:blink 1.2s infinite;display:inline-block;}
 .loading-dots span:nth-child(2){animation-delay:0.2s;}
 .loading-dots span:nth-child(3){animation-delay:0.4s;}
@@ -71,73 +54,71 @@ h1 em{color:var(--accent);font-style:italic;}
 
 main{max-width:1500px;margin:0 auto;padding:2rem 1.5rem;}
 
-.stats-bar{
-  display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;
-  padding:1.2rem 0;margin-bottom:2rem;
-  border-bottom:1px solid var(--border);
-}
+.stats-bar{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;padding:1.2rem 0;margin-bottom:2rem;border-bottom:1px solid var(--border);}
 .stat-pill{text-align:center;}
 .stat-pill-val{font-family:'Libre Baskerville',serif;font-size:1.6rem;font-weight:700;color:var(--accent);line-height:1;}
 .stat-pill-lbl{font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:2px;}
 
-.shelf-hint{
-  text-align:center;font-size:0.7rem;color:var(--text-dim);
-  letter-spacing:0.08em;padding:0.5rem 0 1.5rem;opacity:0.7;
-}
+.shelf-hint{text-align:center;font-size:0.7rem;color:var(--text-dim);letter-spacing:0.08em;padding:0.5rem 0 1.5rem;opacity:0.7;}
 
-.shelf-row{margin-bottom:0;position:relative;}
+/* Tray uses position:relative so we can absolutely position the dragged spine */
 .books-tray{
   display:flex;align-items:flex-end;flex-wrap:wrap;
   gap:3px;min-height:190px;padding:1rem 1rem 0;
+  position:relative;
 }
 .shelf-wood{
   height:16px;
   background:linear-gradient(180deg,var(--wood-top) 0%,var(--wood-mid) 45%,var(--wood-dark) 100%);
   border-radius:2px;
-  box-shadow:0 6px 18px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08);
+  box-shadow:0 6px 18px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.08);
   position:relative;z-index:5;
 }
-.shelf-wood::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:rgba(255,255,255,0.1);border-radius:2px 2px 0 0;
-}
-.shelf-edge{
-  height:8px;
-  background:linear-gradient(180deg,var(--wood-dark) 0%,#251605 100%);
-  border-radius:0 0 3px 3px;
-  box-shadow:0 4px 12px rgba(0,0,0,0.5);
-  margin-bottom:2rem;
-}
+.shelf-wood::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:rgba(255,255,255,0.1);border-radius:2px 2px 0 0;}
+.shelf-edge{height:8px;background:linear-gradient(180deg,var(--wood-dark) 0%,#251605 100%);border-radius:0 0 3px 3px;box-shadow:0 4px 12px rgba(0,0,0,0.5);margin-bottom:2rem;}
 
 .book-spine{
-  position:relative;display:flex;align-items:center;justify-content:center;
+  position:relative;
+  display:flex;align-items:center;justify-content:center;
   cursor:grab;border-radius:2px 4px 4px 2px;
-  transition:transform 0.18s cubic-bezier(0.34,1.56,0.64,1),filter 0.15s,box-shadow 0.18s;
   flex-shrink:0;overflow:hidden;user-select:none;-webkit-user-select:none;
+  /* transitions only for hover/active states; JS handles drag movement */
+  transition:transform 0.18s cubic-bezier(0.34,1.56,0.64,1), filter 0.15s, box-shadow 0.18s, margin-left 0.15s ease, margin-right 0.15s ease;
   animation:spineRise 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
 }
 @keyframes spineRise{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:none;}}
-.book-spine::before{
-  content:'';position:absolute;left:0;top:0;bottom:0;width:4px;
-  background:rgba(0,0,0,0.3);border-radius:2px 0 0 2px;z-index:1;
-}
-.book-spine::after{
-  content:'';position:absolute;right:0;top:0;bottom:0;width:2px;
-  background:rgba(255,255,255,0.06);z-index:1;
-}
-.book-spine:hover{
+.book-spine::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:rgba(0,0,0,0.3);border-radius:2px 0 0 2px;z-index:1;}
+.book-spine::after{content:'';position:absolute;right:0;top:0;bottom:0;width:2px;background:rgba(255,255,255,0.06);z-index:1;}
+
+.book-spine:not(.is-dragging):hover{
   transform:translateY(-14px) rotate(-1.5deg);
   filter:brightness(1.15);
   box-shadow:4px 0 20px rgba(0,0,0,0.6);
   z-index:50;
 }
-.book-spine.spine-active{
+.book-spine.spine-active:not(.is-dragging){
   transform:translateY(-18px) rotate(0deg) !important;
   box-shadow:0 0 0 2px var(--accent),4px 0 24px rgba(0,0,0,0.7) !important;
   z-index:60 !important;filter:brightness(1.2);
 }
-.book-spine.dragging{opacity:0.35;transform:translateY(-4px) !important;transition:none !important;cursor:grabbing;}
-.book-spine.drag-over{box-shadow:-3px 0 0 0 var(--accent) !important;}
+
+/* The spine being dragged — floats above everything, JS moves it */
+.book-spine.is-dragging{
+  position:fixed;
+  pointer-events:none;
+  z-index:9999;
+  cursor:grabbing;
+  transition:none !important;
+  transform:rotate(-4deg) translateY(-8px);
+  box-shadow:8px 12px 32px rgba(0,0,0,0.7);
+  filter:brightness(1.15);
+  opacity:0.95;
+  /* size preserved via inline style set in JS */
+}
+
+/* Gap indicator for drop target */
+.book-spine.drop-gap-left  { margin-left:  28px; }
+.book-spine.drop-gap-right { margin-right: 28px; }
 
 .book-spine-inner{
   writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg);
@@ -146,27 +127,12 @@ main{max-width:1500px;margin:0 auto;padding:2rem 1.5rem;}
   line-height:1.15;letter-spacing:0.03em;position:relative;z-index:2;
 }
 
-.shelf-empty{
-  display:flex;align-items:center;justify-content:center;
-  height:180px;color:var(--text-dim);font-size:0.85rem;
-  letter-spacing:0.05em;font-weight:300;width:100%;
-}
+.shelf-empty{display:flex;align-items:center;justify-content:center;height:180px;color:var(--text-dim);font-size:0.85rem;letter-spacing:0.05em;font-weight:300;width:100%;}
 
 /* Info panel */
-.info-panel{
-  position:fixed;bottom:1.5rem;right:1.5rem;width:300px;
-  background:var(--bg2);border:1px solid rgba(212,168,67,0.3);
-  border-radius:1rem;padding:1.2rem 1.3rem 1.1rem;
-  z-index:9999;animation:panelIn 0.22s cubic-bezier(0.34,1.56,0.64,1);
-  box-shadow:0 8px 40px rgba(0,0,0,0.6);
-}
+.info-panel{position:fixed;bottom:1.5rem;right:1.5rem;width:300px;background:var(--bg2);border:1px solid rgba(212,168,67,0.3);border-radius:1rem;padding:1.2rem 1.3rem 1.1rem;z-index:8000;animation:panelIn 0.22s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 8px 40px rgba(0,0,0,0.6);}
 @keyframes panelIn{from{opacity:0;transform:translateY(14px) scale(0.94);}to{opacity:1;transform:none;}}
-.info-close{
-  position:absolute;top:0.75rem;right:0.9rem;
-  background:none;border:none;cursor:pointer;
-  color:var(--text-muted);font-size:0.95rem;padding:2px 5px;
-  border-radius:4px;transition:color 0.15s;
-}
+.info-close{position:absolute;top:0.75rem;right:0.9rem;background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:0.95rem;padding:2px 5px;border-radius:4px;transition:color 0.15s;}
 .info-close:hover{color:var(--text);}
 .info-cover{width:60px;height:88px;border-radius:3px;object-fit:cover;flex-shrink:0;background:var(--bg3);display:block;box-shadow:2px 2px 8px rgba(0,0,0,0.4);}
 .info-cover-ph{width:60px;height:88px;border-radius:3px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;box-shadow:2px 2px 8px rgba(0,0,0,0.4);}
@@ -177,9 +143,7 @@ main{max-width:1500px;margin:0 auto;padding:2rem 1.5rem;}
 .info-desc{font-size:0.72rem;color:var(--text-muted);line-height:1.6;margin-top:0.6rem;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;}
 .info-meta{font-size:0.7rem;color:var(--text-dim);display:flex;flex-direction:column;gap:2px;margin-top:0.5rem;}
 
-@media(max-width:600px){
-  .info-panel{left:1rem;right:1rem;width:auto;bottom:1rem;}
-}
+@media(max-width:600px){.info-panel{left:1rem;right:1rem;width:auto;bottom:1rem;}}
 </style>
 </head>
 <body>
@@ -248,137 +212,214 @@ const QUERIES = [
 ];
 
 let books = [];
-let dragSrc = null;
+let spineEls = []; // parallel array of DOM elements, same order as books[]
 let activeSpineEl = null;
 
-function palIdx(str){let h=0;for(let i=0;i<str.length;i++)h=(h*31+str.charCodeAt(i))%PALETTES.length;return h;}
-function spineH(str){let h=0;for(let i=0;i<str.length;i++)h=(h*17+str.charCodeAt(i))%80;return 120+h;}
+// ── palette helpers ──
+function palIdx(s){let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))%PALETTES.length;return h;}
+function spineH(s){let h=0;for(let i=0;i<s.length;i++)h=(h*17+s.charCodeAt(i))%80;return 120+h;}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
-// Shuffle array in place
-function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
-
+// ── LOAD ──
 async function loadShelf(){
   const status = document.getElementById('loadStatus');
-
-  // Pick 4 random queries to get variety
-  const chosen = shuffle([...QUERIES]).slice(0, 4);
-  const seen = new Set();
-
+  const chosen = shuffle([...QUERIES]).slice(0,4);
   try {
-    const fetches = chosen.map(q =>
+    const results = await Promise.all(chosen.map(q =>
       fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&limit=30&fields=key,title,author_name,subject,number_of_pages_median,first_publish_year,cover_i`)
-        .then(r => r.json())
-    );
-    const results = await Promise.all(fetches);
-
+        .then(r=>r.json())
+    ));
+    const seen = new Set();
     const pool = [];
     for (const data of results) {
-      for (const doc of (data.docs || [])) {
-        if (!doc.title || !doc.author_name) continue;
-        const id = doc.key || doc.title;
+      for (const doc of (data.docs||[])) {
+        if (!doc.title||!doc.author_name) continue;
+        const id = doc.key||doc.title;
         if (seen.has(id)) continue;
         seen.add(id);
-        pool.push({
-          id,
-          title: doc.title,
-          author: doc.author_name[0],
-          pages: doc.number_of_pages_median || 0,
-          year: doc.first_publish_year || null,
-          coverId: doc.cover_i || null,
-          subjects: doc.subject ? doc.subject.slice(0,3) : [],
-          description: '',
-        });
+        pool.push({id,title:doc.title,author:doc.author_name[0],pages:doc.number_of_pages_median||0,year:doc.first_publish_year||null,coverId:doc.cover_i||null,subjects:doc.subject?doc.subject.slice(0,3):[],description:''});
       }
     }
-
-    // Shuffle the pool and take up to 100
-    books = shuffle(pool).slice(0, 100);
-
+    books = shuffle(pool).slice(0,100);
     status.textContent = `${books.length} books on your shelf`;
     document.getElementById('shelfHint').style.display = 'block';
-    renderShelf();
+    buildShelf();
   } catch(e) {
     status.textContent = 'Could not load books — check your connection.';
     document.getElementById('booksTray').innerHTML = '<div class="shelf-empty">Failed to load. Please refresh.</div>';
   }
 }
 
-function renderShelf(){
+// ── BUILD (called once) ──
+function buildShelf(){
   const tray = document.getElementById('booksTray');
   tray.innerHTML = '';
+  spineEls = [];
+  const maxPages = Math.max(...books.map(b=>b.pages||250),1);
 
-  const maxPages = Math.max(...books.map(b => b.pages || 250), 1);
-
-  books.forEach((book, i) => {
-    const pages  = book.pages > 0 ? book.pages : 220;
-    const width  = Math.round(18 + ((pages / maxPages) * 26));
-    const height = spineH(book.title);
-    const pal    = PALETTES[palIdx(book.title)];
-
-    const spine = document.createElement('div');
-    spine.className = 'book-spine';
-    spine.dataset.idx = i;
-    spine.style.cssText = `width:${width}px;height:${height}px;background:linear-gradient(90deg,${pal.bg[0]} 0%,${pal.bg[1]} 55%,${pal.bg[0]} 100%);animation-delay:${Math.min(i*0.015,1.5)}s`;
-    spine.title = `${book.title} — ${book.author}`;
-    spine.draggable = true;
-
-    const inner = document.createElement('div');
-    inner.className = 'book-spine-inner';
-    inner.style.color = pal.text;
-    inner.style.maxHeight = (height - 12) + 'px';
-    inner.textContent = book.title;
-    spine.appendChild(inner);
-
-    spine.addEventListener('click', () => openPanel(book, spine));
-    spine.addEventListener('dragstart', onDragStart);
-    spine.addEventListener('dragover',  onDragOver);
-    spine.addEventListener('dragleave', onDragLeave);
-    spine.addEventListener('drop',      onDrop);
-    spine.addEventListener('dragend',   onDragEnd);
-
-    tray.appendChild(spine);
+  books.forEach((book,i) => {
+    const el = makeSpine(book, i, maxPages);
+    tray.appendChild(el);
+    spineEls.push(el);
   });
 
   updateStats();
+  initDrag();
 }
 
-// ── DRAG ──
-function onDragStart(e){
-  dragSrc = this;
-  this.classList.add('dragging');
-  e.dataTransfer.effectAllowed = 'move';
-  e.dataTransfer.setData('text/plain', this.dataset.idx);
+function makeSpine(book, i, maxPages){
+  const pages  = book.pages > 0 ? book.pages : 220;
+  const width  = Math.round(18 + ((pages / maxPages) * 26));
+  const height = spineH(book.title);
+  const pal    = PALETTES[palIdx(book.title)];
+
+  const spine = document.createElement('div');
+  spine.className = 'book-spine';
+  spine.dataset.bookIdx = i;
+  spine.style.cssText = `width:${width}px;height:${height}px;background:linear-gradient(90deg,${pal.bg[0]} 0%,${pal.bg[1]} 55%,${pal.bg[0]} 100%);animation-delay:${Math.min(i*0.012,1.2)}s`;
+  spine.title = `${book.title} — ${book.author}`;
+
+  const inner = document.createElement('div');
+  inner.className = 'book-spine-inner';
+  inner.style.color = pal.text;
+  inner.style.maxHeight = (height-12)+'px';
+  inner.textContent = book.title;
+  spine.appendChild(inner);
+
+  spine.addEventListener('click', e => {
+    if (wasDragging) return; // don't open panel after a drag
+    openPanel(book, spine);
+  });
+
+  return spine;
 }
-function onDragOver(e){
-  e.preventDefault();
-  e.dataTransfer.dropEffect = 'move';
-  if(this !== dragSrc) this.classList.add('drag-over');
+
+// ── CUSTOM POINTER DRAG ──
+// We move the actual element as position:fixed while dragging.
+// The element is removed from flow by going fixed, so we insert a
+// same-width placeholder <div> in its original slot to hold the gap,
+// then shift it through the siblings as the user moves.
+
+let dragEl     = null;   // the spine being dragged (position:fixed while dragging)
+let placeholder= null;   // invisible spacer keeping the gap
+let dragOffX   = 0;      // cursor offset within the spine
+let dragOffY   = 0;
+let wasDragging= false;
+let placeholderIdx = -1; // current index in spineEls where placeholder sits
+
+function initDrag(){
+  const tray = document.getElementById('booksTray');
+
+  tray.addEventListener('pointerdown', e => {
+    const spine = e.target.closest('.book-spine');
+    if (!spine) return;
+    e.preventDefault();
+
+    wasDragging = false;
+    dragEl = spine;
+
+    const rect = spine.getBoundingClientRect();
+    dragOffX = e.clientX - rect.left;
+    dragOffY = e.clientY - rect.top;
+
+    // Record natural index in spineEls
+    placeholderIdx = spineEls.indexOf(spine);
+
+    // Create a placeholder the same width so layout holds its spot
+    placeholder = document.createElement('div');
+    placeholder.style.cssText = `width:${rect.width}px;height:${rect.height}px;flex-shrink:0;pointer-events:none;opacity:0;`;
+    spine.parentNode.insertBefore(placeholder, spine);
+
+    // Lift the spine into fixed position
+    spine.classList.add('is-dragging');
+    spine.style.width  = rect.width  + 'px';
+    spine.style.height = rect.height + 'px';
+    spine.style.left   = rect.left   + 'px';
+    spine.style.top    = rect.top    + 'px';
+
+    document.addEventListener('pointermove', onPointerMove);
+    document.addEventListener('pointerup',   onPointerUp);
+  });
 }
-function onDragLeave(){ this.classList.remove('drag-over'); }
-function onDrop(e){
-  e.stopPropagation();
-  this.classList.remove('drag-over');
-  if(this === dragSrc) return;
-  const from = +dragSrc.dataset.idx;
-  const to   = +this.dataset.idx;
-  const [moved] = books.splice(from, 1);
-  books.splice(to, 0, moved);
-  renderShelf();
+
+function onPointerMove(e){
+  if (!dragEl) return;
+
+  if (!wasDragging) wasDragging = true;
+
+  // Move the floating spine
+  dragEl.style.left = (e.clientX - dragOffX) + 'px';
+  dragEl.style.top  = (e.clientY - dragOffY) + 'px';
+
+  // Find which spine the cursor is over (excluding dragEl and placeholder)
+  const tray = document.getElementById('booksTray');
+  const siblings = [...tray.querySelectorAll('.book-spine:not(.is-dragging)')];
+  let target = null;
+  let insertBefore = true;
+
+  for (const sib of siblings) {
+    const r = sib.getBoundingClientRect();
+    if (e.clientX >= r.left && e.clientX <= r.right &&
+        e.clientY >= r.top  - 60 && e.clientY <= r.bottom + 60) {
+      target = sib;
+      insertBefore = e.clientX < r.left + r.width / 2;
+      break;
+    }
+  }
+
+  if (target) {
+    // Move placeholder to hug the target
+    if (insertBefore) {
+      tray.insertBefore(placeholder, target);
+    } else {
+      tray.insertBefore(placeholder, target.nextSibling);
+    }
+    // Update placeholderIdx to reflect logical position among spineEls
+    const sibIdx = spineEls.indexOf(target);
+    placeholderIdx = insertBefore ? sibIdx : sibIdx + 1;
+  }
 }
-function onDragEnd(){
-  document.querySelectorAll('.book-spine').forEach(s => s.classList.remove('dragging','drag-over'));
-  dragSrc = null;
+
+function onPointerUp(e){
+  document.removeEventListener('pointermove', onPointerMove);
+  document.removeEventListener('pointerup',   onPointerUp);
+  if (!dragEl) return;
+
+  const tray = document.getElementById('booksTray');
+
+  // Un-float the spine: put it where the placeholder is
+  dragEl.classList.remove('is-dragging');
+  dragEl.style.left = dragEl.style.top = dragEl.style.width = dragEl.style.height = '';
+
+  tray.insertBefore(dragEl, placeholder);
+  placeholder.remove();
+  placeholder = null;
+
+  // Re-sync spineEls[] and books[] to match the new DOM order
+  const newSpineEls = [...tray.querySelectorAll('.book-spine')];
+  const newBooks    = newSpineEls.map(el => books[+el.dataset.bookIdx]);
+
+  // Re-index dataset attributes
+  newSpineEls.forEach((el, i) => { el.dataset.bookIdx = i; });
+
+  books     = newBooks;
+  spineEls  = newSpineEls;
+
+  dragEl = null;
+
+  // tiny delay so the click event that fires after pointerup sees wasDragging=true
+  setTimeout(() => { wasDragging = false; }, 50);
 }
 
 // ── INFO PANEL ──
 function openPanel(book, spineEl){
-  if(activeSpineEl === spineEl){ closePanel(); return; }
-  if(activeSpineEl) activeSpineEl.classList.remove('spine-active');
+  if (activeSpineEl === spineEl){ closePanel(); return; }
+  if (activeSpineEl) activeSpineEl.classList.remove('spine-active');
   activeSpineEl = spineEl;
   spineEl.classList.add('spine-active');
 
   const coverWrap = document.getElementById('infoCover');
-  if(book.coverId){
+  if (book.coverId){
     coverWrap.innerHTML = `<img class="info-cover" src="https://covers.openlibrary.org/b/id/${book.coverId}-M.jpg" alt="" onerror="this.outerHTML='<div class=\\'info-cover-ph\\'>📖</div>'">`;
   } else {
     coverWrap.innerHTML = '<div class="info-cover-ph">📖</div>';
@@ -387,19 +428,18 @@ function openPanel(book, spineEl){
   document.getElementById('infoTitle').textContent  = book.title;
   document.getElementById('infoAuthor').textContent = book.author;
   document.getElementById('infoBadges').innerHTML   = book.subjects.slice(0,2).map(s=>`<span class="info-badge ib-genre">${s.slice(0,24)}</span>`).join('');
-
   const meta = [];
-  if(book.pages) meta.push(`📄 ${book.pages.toLocaleString()} pages`);
-  if(book.year)  meta.push(`📅 First published ${book.year}`);
+  if (book.pages) meta.push(`📄 ${book.pages.toLocaleString()} pages`);
+  if (book.year)  meta.push(`📅 First published ${book.year}`);
   document.getElementById('infoMeta').innerHTML = meta.map(m=>`<span>${m}</span>`).join('');
   document.getElementById('infoDesc').textContent = book.description || '';
 
-  if(!book.description && book.id){
+  if (!book.description && book.id){
     fetch(`https://openlibrary.org${book.id}.json`)
       .then(r=>r.json())
       .then(d=>{
         const desc = typeof d.description==='string' ? d.description : d.description?.value||'';
-        if(desc){ book.description=desc.slice(0,300); document.getElementById('infoDesc').textContent=book.description; }
+        if (desc){ book.description=desc.slice(0,300); document.getElementById('infoDesc').textContent=book.description; }
       }).catch(()=>{});
   }
 
@@ -408,20 +448,20 @@ function openPanel(book, spineEl){
 
 function closePanel(){
   document.getElementById('infoPanel').style.display = 'none';
-  if(activeSpineEl){ activeSpineEl.classList.remove('spine-active'); activeSpineEl=null; }
+  if (activeSpineEl){ activeSpineEl.classList.remove('spine-active'); activeSpineEl=null; }
 }
 
 document.getElementById('infoPanelClose').addEventListener('click', closePanel);
 document.addEventListener('click', e => {
-  if(document.getElementById('infoPanel').style.display==='none') return;
-  if(!document.getElementById('infoPanel').contains(e.target) && !e.target.closest('.book-spine')) closePanel();
+  if (document.getElementById('infoPanel').style.display==='none') return;
+  if (!document.getElementById('infoPanel').contains(e.target) && !e.target.closest('.book-spine')) closePanel();
 });
 
 function updateStats(){
   document.getElementById('statCount').textContent   = books.length;
   document.getElementById('statAuthors').textContent = new Set(books.map(b=>b.author)).size;
   const p = books.reduce((s,b)=>s+(b.pages||0),0);
-  document.getElementById('statPages').textContent   = p>999?(p/1000).toFixed(1)+'k':p;
+  document.getElementById('statPages').textContent   = p>999?(p/1000).toFixed(1)+'k':p||'—';
 }
 
 loadShelf();
