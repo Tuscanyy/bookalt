@@ -345,8 +345,8 @@ function makeDecoration(title, w, h, textColor) {
       const s = 7, t = 1.2;
       const corners = [[s,s],[w-s,s],[s,h-s],[w-s,h-s]];
       const dirs    = [[ 1, 1],[-1, 1],[ 1,-1],[-1,-1]];
-      corners.forEach(([x,y],[dx,dy]) => {
-        // two lines forming an L
+      corners.forEach(([x,y], ci) => {
+        const [dx,dy] = dirs[ci];
         svg.appendChild(svgEl('line', {x1:x, y1:y, x2:x+dx*s*0.7, y2:y, stroke:c, 'stroke-width':t, opacity:op, 'stroke-linecap':'round'}));
         svg.appendChild(svgEl('line', {x1:x, y1:y, x2:x, y2:y+dy*s*0.7, stroke:c, 'stroke-width':t, opacity:op, 'stroke-linecap':'round'}));
       });
