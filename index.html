@@ -284,6 +284,146 @@ function buildShelf(){
   initDrag();
 }
 
+// ── SPINE DECORATIONS ──
+// Uses a seeded hash so each book always gets the same decoration.
+function seedRand(str) {
+  // Simple deterministic PRNG seeded from string
+  let s = 0;
+  for (let i = 0; i < str.length; i++) s = (s * 31 + str.charCodeAt(i)) >>> 0;
+  return function() {
+    s ^= s << 13; s ^= s >> 17; s ^= s << 5;
+    return (s >>> 0) / 0xFFFFFFFF;
+  };
+}
+
+function makeSVG(w, h) {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', w);
+  svg.setAttribute('height', h);
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  svg.style.cssText = 'position:absolute;inset:0;pointer-events:none;z-index:3;overflow:visible;';
+  return svg;
+}
+
+function svgEl(tag, attrs) {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for (const [k,v] of Object.entries(attrs)) el.setAttribute(k, v);
+  return el;
+}
+
+function makeDecoration(title, w, h, textColor) {
+  const rng  = seedRand(title);
+  const kind = Math.floor(rng() * 8); // 0-7, pick decoration type
+  const col  = textColor;
+  const op   = 0.18 + rng() * 0.22;  // 0.18–0.40 opacity so it's subtle
+  const c    = `${col}`;
+  const cx   = w / 2;
+
+  const svg = makeSVG(w, h);
+
+  switch (kind) {
+
+    case 0: { // Horizontal rules top and bottom with small diamond centre
+      const pad = 6;
+      svg.appendChild(svgEl('line', {x1:pad, y1:10, x2:w-pad, y2:10, stroke:c, 'stroke-width':1, opacity:op}));
+      svg.appendChild(svgEl('line', {x1:pad, y1:h-10, x2:w-pad, y2:h-10, stroke:c, 'stroke-width':1, opacity:op}));
+      const d = 4;
+      svg.appendChild(svgEl('polygon', {points:`${cx},${h/2-d} ${cx+d},${h/2} ${cx},${h/2+d} ${cx-d},${h/2}`, fill:c, opacity:op+0.1}));
+      break;
+    }
+
+    case 1: { // Dot row at top and bottom
+      const pad = 5, dotR = 1.5;
+      for (let x = pad + dotR; x <= w - pad; x += 5) {
+        svg.appendChild(svgEl('circle', {cx:x, cy:8, r:dotR, fill:c, opacity:op}));
+        svg.appendChild(svgEl('circle', {cx:x, cy:h-8, r:dotR, fill:c, opacity:op}));
+      }
+      break;
+    }
+
+    case 2: { // Corner bracket ornaments all four corners
+      const s = 7, t = 1.2;
+      const corners = [[s,s],[w-s,s],[s,h-s],[w-s,h-s]];
+      const dirs    = [[ 1, 1],[-1, 1],[ 1,-1],[-1,-1]];
+      corners.forEach(([x,y],[dx,dy]) => {
+        // two lines forming an L
+        svg.appendChild(svgEl('line', {x1:x, y1:y, x2:x+dx*s*0.7, y2:y, stroke:c, 'stroke-width':t, opacity:op, 'stroke-linecap':'round'}));
+        svg.appendChild(svgEl('line', {x1:x, y1:y, x2:x, y2:y+dy*s*0.7, stroke:c, 'stroke-width':t, opacity:op, 'stroke-linecap':'round'}));
+      });
+      break;
+    }
+
+    case 3: { // Single thin vertical line down the centre with small ticks
+      svg.appendChild(svgEl('line', {x1:cx, y1:14, x2:cx, y2:h-14, stroke:c, 'stroke-width':0.8, opacity:op*0.7}));
+      [0.25, 0.5, 0.75].forEach(f => {
+        const y = 14 + (h-28)*f;
+        svg.appendChild(svgEl('line', {x1:cx-3, y1:y, x2:cx+3, y2:y, stroke:c, 'stroke-width':1.2, opacity:op}));
+      });
+      break;
+    }
+
+    case 4: { // Small star / asterisk at top
+      const sx = cx, sy = 11, sr = 5;
+      for (let a = 0; a < 3; a++) {
+        const angle = (a / 3) * Math.PI;
+        svg.appendChild(svgEl('line', {
+          x1: sx + Math.cos(angle)*sr, y1: sy + Math.sin(angle)*sr,
+          x2: sx - Math.cos(angle)*sr, y2: sy - Math.sin(angle)*sr,
+          stroke:c, 'stroke-width':1.2, opacity:op+0.1, 'stroke-linecap':'round'
+        }));
+      }
+      // Mirror at bottom
+      const by = h - 11;
+      for (let a = 0; a < 3; a++) {
+        const angle = (a / 3) * Math.PI;
+        svg.appendChild(svgEl('line', {
+          x1: sx + Math.cos(angle)*sr, y1: by + Math.sin(angle)*sr,
+          x2: sx - Math.cos(angle)*sr, y2: by - Math.sin(angle)*sr,
+          stroke:c, 'stroke-width':1.2, opacity:op+0.1, 'stroke-linecap':'round'
+        }));
+      }
+      break;
+    }
+
+    case 5: { // Zigzag border strip at top
+      const pad = 4, step = 4, zH = 5, y0 = 9;
+      let pts = '';
+      for (let x = pad; x <= w - pad; x += step) {
+        pts += `${x},${y0 + (Math.round((x-pad)/step) % 2 === 0 ? 0 : zH)} `;
+      }
+      svg.appendChild(svgEl('polyline', {points:pts.trim(), fill:'none', stroke:c, 'stroke-width':1, opacity:op, 'stroke-linecap':'round', 'stroke-linejoin':'round'}));
+      // Plain rule at bottom
+      svg.appendChild(svgEl('line', {x1:pad, y1:h-10, x2:w-pad, y2:h-10, stroke:c, 'stroke-width':1, opacity:op}));
+      break;
+    }
+
+    case 6: { // Row of small diamonds
+      const y = h / 2;
+      const d = 3, gap = 7;
+      let x = cx - Math.floor((w * 0.5) / gap) * gap;
+      while (x < w - 4) {
+        svg.appendChild(svgEl('polygon', {points:`${x},${y-d} ${x+d},${y} ${x},${y+d} ${x-d},${y}`, fill:'none', stroke:c, 'stroke-width':0.8, opacity:op}));
+        x += gap;
+      }
+      break;
+    }
+
+    case 7: { // Thin decorative arch near top
+      const r  = Math.min(cx - 4, 14);
+      const y0 = 16;
+      svg.appendChild(svgEl('path', {d:`M ${cx-r} ${y0} Q ${cx} ${y0 - r * 0.7} ${cx+r} ${y0}`, fill:'none', stroke:c, 'stroke-width':1, opacity:op, 'stroke-linecap':'round'}));
+      svg.appendChild(svgEl('line', {x1:cx-r, y1:y0, x2:cx+r, y2:y0, stroke:c, 'stroke-width':0.6, opacity:op*0.7}));
+      // Mirrored at bottom
+      const yb = h - 16;
+      svg.appendChild(svgEl('path', {d:`M ${cx-r} ${yb} Q ${cx} ${yb + r * 0.7} ${cx+r} ${yb}`, fill:'none', stroke:c, 'stroke-width':1, opacity:op, 'stroke-linecap':'round'}));
+      svg.appendChild(svgEl('line', {x1:cx-r, y1:yb, x2:cx+r, y2:yb, stroke:c, 'stroke-width':0.6, opacity:op*0.7}));
+      break;
+    }
+  }
+
+  return svg;
+}
+
 function makeSpine(book, i, maxPages){
   const pages  = book.pages > 0 ? book.pages : 220;
   const width  = Math.round((18 + ((pages / maxPages) * 26)) * 1.5);
@@ -295,11 +435,14 @@ function makeSpine(book, i, maxPages){
   spine.dataset.bookIdx = i;
   spine.dataset.w = width;
   spine.dataset.h = height;
-  // width/height baked in as inline style — never cleared, flex-shrink:0 already set
   spine.style.cssText = `width:${width}px;height:${height}px;min-width:${width}px;min-height:${height}px;max-width:${width}px;max-height:${height}px;background:linear-gradient(90deg,${pal.bg[0]} 0%,${pal.bg[1]} 55%,${pal.bg[0]} 100%);animation-delay:${Math.min(i*0.012,1.2)}s`;
   spine.title = `${book.title} — ${book.author}`;
   spine.classList.add('spine-enter');
   spine.addEventListener('animationend', () => spine.classList.remove('spine-enter'), {once: true});
+
+  // Decorations
+  const decSVG = makeDecoration(book.title, width, height, pal.text);
+  if (decSVG) spine.appendChild(decSVG);
 
   const inner = document.createElement('div');
   inner.className = 'book-spine-inner';
