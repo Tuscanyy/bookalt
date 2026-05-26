@@ -276,7 +276,10 @@ function makeSpine(book, i, maxPages){
   const spine = document.createElement('div');
   spine.className = 'book-spine';
   spine.dataset.bookIdx = i;
-  spine.style.cssText = `width:${width}px;height:${height}px;background:linear-gradient(90deg,${pal.bg[0]} 0%,${pal.bg[1]} 55%,${pal.bg[0]} 100%);animation-delay:${Math.min(i*0.012,1.2)}s`;
+  spine.dataset.w = width;
+  spine.dataset.h = height;
+  // width/height baked in as inline style — never cleared, flex-shrink:0 already set
+  spine.style.cssText = `width:${width}px;height:${height}px;min-width:${width}px;min-height:${height}px;max-width:${width}px;max-height:${height}px;background:linear-gradient(90deg,${pal.bg[0]} 0%,${pal.bg[1]} 55%,${pal.bg[0]} 100%);animation-delay:${Math.min(i*0.012,1.2)}s`;
   spine.title = `${book.title} — ${book.author}`;
 
   const inner = document.createElement('div');
@@ -330,12 +333,19 @@ function initDrag(){
     placeholder.style.cssText = `width:${rect.width}px;height:${rect.height}px;flex-shrink:0;pointer-events:none;opacity:0;`;
     spine.parentNode.insertBefore(placeholder, spine);
 
-    // Lift the spine into fixed position
+    // Lift the spine into fixed position — use stored data-w/h, not getBCR,
+    // so the size never changes regardless of flex context
+    const w = +spine.dataset.w;
+    const h = +spine.dataset.h;
     spine.classList.add('is-dragging');
-    spine.style.width  = rect.width  + 'px';
-    spine.style.height = rect.height + 'px';
-    spine.style.left   = rect.left   + 'px';
-    spine.style.top    = rect.top    + 'px';
+    spine.style.width     = w + 'px';
+    spine.style.height    = h + 'px';
+    spine.style.minWidth  = w + 'px';
+    spine.style.minHeight = h + 'px';
+    spine.style.maxWidth  = w + 'px';
+    spine.style.maxHeight = h + 'px';
+    spine.style.left      = rect.left + 'px';
+    spine.style.top       = rect.top  + 'px';
 
     document.addEventListener('pointermove', onPointerMove);
     document.addEventListener('pointerup',   onPointerUp);
@@ -387,9 +397,19 @@ function onPointerUp(e){
 
   const tray = document.getElementById('booksTray');
 
-  // Un-float the spine: put it where the placeholder is
+  // Un-float the spine: restore it in-flow with its locked dimensions
   dragEl.classList.remove('is-dragging');
-  dragEl.style.left = dragEl.style.top = dragEl.style.width = dragEl.style.height = '';
+  const w = +dragEl.dataset.w;
+  const h = +dragEl.dataset.h;
+  dragEl.style.position  = '';
+  dragEl.style.left      = '';
+  dragEl.style.top       = '';
+  dragEl.style.width     = w + 'px';
+  dragEl.style.height    = h + 'px';
+  dragEl.style.minWidth  = w + 'px';
+  dragEl.style.minHeight = h + 'px';
+  dragEl.style.maxWidth  = w + 'px';
+  dragEl.style.maxHeight = h + 'px';
 
   tray.insertBefore(dragEl, placeholder);
   placeholder.remove();
