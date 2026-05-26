@@ -82,8 +82,10 @@ main{max-width:1500px;margin:0 auto;padding:2rem 1.5rem;}
   display:flex;align-items:center;justify-content:center;
   cursor:grab;border-radius:2px 4px 4px 2px;
   flex-shrink:0;overflow:hidden;user-select:none;-webkit-user-select:none;
-  /* transitions only for hover/active states; JS handles drag movement */
-  transition:transform 0.18s cubic-bezier(0.34,1.56,0.64,1), filter 0.15s, box-shadow 0.18s, margin-left 0.15s ease, margin-right 0.15s ease;
+  transition:transform 0.18s cubic-bezier(0.34,1.56,0.64,1), filter 0.15s, box-shadow 0.18s;
+}
+/* Only animate on initial appearance, class removed after first play */
+.book-spine.spine-enter{
   animation:spineRise 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
 }
 @keyframes spineRise{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:none;}}
@@ -281,6 +283,8 @@ function makeSpine(book, i, maxPages){
   // width/height baked in as inline style — never cleared, flex-shrink:0 already set
   spine.style.cssText = `width:${width}px;height:${height}px;min-width:${width}px;min-height:${height}px;max-width:${width}px;max-height:${height}px;background:linear-gradient(90deg,${pal.bg[0]} 0%,${pal.bg[1]} 55%,${pal.bg[0]} 100%);animation-delay:${Math.min(i*0.012,1.2)}s`;
   spine.title = `${book.title} — ${book.author}`;
+  spine.classList.add('spine-enter');
+  spine.addEventListener('animationend', () => spine.classList.remove('spine-enter'), {once: true});
 
   const inner = document.createElement('div');
   inner.className = 'book-spine-inner';
@@ -290,7 +294,6 @@ function makeSpine(book, i, maxPages){
   spine.appendChild(inner);
 
   spine.addEventListener('click', e => {
-    if (wasDragging) return; // don't open panel after a drag
     openPanel(book, spine);
   });
 
@@ -303,12 +306,15 @@ function makeSpine(book, i, maxPages){
 // same-width placeholder <div> in its original slot to hold the gap,
 // then shift it through the siblings as the user moves.
 
-let dragEl     = null;   // the spine being dragged (position:fixed while dragging)
-let placeholder= null;   // invisible spacer keeping the gap
-let dragOffX   = 0;      // cursor offset within the spine
-let dragOffY   = 0;
-let wasDragging= false;
-let placeholderIdx = -1; // current index in spineEls where placeholder sits
+let dragEl        = null;
+let placeholder   = null;
+let dragOffX      = 0;
+let dragOffY      = 0;
+let pointerDownX  = 0;
+let pointerDownY  = 0;
+let isDragging    = false;   // true only once movement threshold exceeded
+let pendingSpine  = null;    // spine touched but not yet confirmed as drag
+const DRAG_THRESHOLD = 6;    // pixels of movement before drag starts
 
 function initDrag(){
   const tray = document.getElementById('booksTray');
@@ -316,94 +322,99 @@ function initDrag(){
   tray.addEventListener('pointerdown', e => {
     const spine = e.target.closest('.book-spine');
     if (!spine) return;
-    e.preventDefault();
-
-    wasDragging = false;
-    dragEl = spine;
-
+    // Don't preventDefault yet — let click fire normally if user doesn't drag
+    pendingSpine = spine;
+    pointerDownX = e.clientX;
+    pointerDownY = e.clientY;
     const rect = spine.getBoundingClientRect();
     dragOffX = e.clientX - rect.left;
     dragOffY = e.clientY - rect.top;
-
-    // Record natural index in spineEls
-    placeholderIdx = spineEls.indexOf(spine);
-
-    // Create a placeholder the same width so layout holds its spot
-    placeholder = document.createElement('div');
-    placeholder.style.cssText = `width:${rect.width}px;height:${rect.height}px;flex-shrink:0;pointer-events:none;opacity:0;`;
-    spine.parentNode.insertBefore(placeholder, spine);
-
-    // Lift the spine into fixed position — use stored data-w/h, not getBCR,
-    // so the size never changes regardless of flex context
-    const w = +spine.dataset.w;
-    const h = +spine.dataset.h;
-    spine.classList.add('is-dragging');
-    spine.style.width     = w + 'px';
-    spine.style.height    = h + 'px';
-    spine.style.minWidth  = w + 'px';
-    spine.style.minHeight = h + 'px';
-    spine.style.maxWidth  = w + 'px';
-    spine.style.maxHeight = h + 'px';
-    spine.style.left      = rect.left + 'px';
-    spine.style.top       = rect.top  + 'px';
-
     document.addEventListener('pointermove', onPointerMove);
     document.addEventListener('pointerup',   onPointerUp);
   });
 }
 
+function liftSpine(spine) {
+  // Called once threshold exceeded — NOW we commit to dragging
+  isDragging = true;
+  dragEl = spine;
+  const rect = spine.getBoundingClientRect();
+  const w = +spine.dataset.w;
+  const h = +spine.dataset.h;
+
+  placeholder = document.createElement('div');
+  placeholder.style.cssText = `width:${w}px;height:${h}px;flex-shrink:0;pointer-events:none;opacity:0;`;
+  spine.parentNode.insertBefore(placeholder, spine);
+
+  spine.classList.add('is-dragging');
+  spine.style.width     = w + 'px';
+  spine.style.height    = h + 'px';
+  spine.style.minWidth  = w + 'px';
+  spine.style.minHeight = h + 'px';
+  spine.style.maxWidth  = w + 'px';
+  spine.style.maxHeight = h + 'px';
+  spine.style.left      = rect.left + 'px';
+  spine.style.top       = rect.top  + 'px';
+}
+
 function onPointerMove(e){
-  if (!dragEl) return;
+  if (!pendingSpine) return;
 
-  if (!wasDragging) wasDragging = true;
+  if (!isDragging) {
+    // Check if we've moved enough to start a drag
+    const dx = e.clientX - pointerDownX;
+    const dy = e.clientY - pointerDownY;
+    if (Math.sqrt(dx*dx + dy*dy) < DRAG_THRESHOLD) return;
+    e.preventDefault();
+    liftSpine(pendingSpine);
+  }
 
-  // Move the floating spine
+  // Move the floating spine to follow cursor exactly
   dragEl.style.left = (e.clientX - dragOffX) + 'px';
   dragEl.style.top  = (e.clientY - dragOffY) + 'px';
 
-  // Find which spine the cursor is over (excluding dragEl and placeholder)
+  // Slide placeholder to the nearest gap
   const tray = document.getElementById('booksTray');
   const siblings = [...tray.querySelectorAll('.book-spine:not(.is-dragging)')];
-  let target = null;
-  let insertBefore = true;
 
   for (const sib of siblings) {
     const r = sib.getBoundingClientRect();
     if (e.clientX >= r.left && e.clientX <= r.right &&
-        e.clientY >= r.top  - 60 && e.clientY <= r.bottom + 60) {
-      target = sib;
-      insertBefore = e.clientX < r.left + r.width / 2;
+        e.clientY >= r.top - 60 && e.clientY <= r.bottom + 60) {
+      const before = e.clientX < r.left + r.width / 2;
+      tray.insertBefore(placeholder, before ? sib : sib.nextSibling);
       break;
     }
-  }
-
-  if (target) {
-    // Move placeholder to hug the target
-    if (insertBefore) {
-      tray.insertBefore(placeholder, target);
-    } else {
-      tray.insertBefore(placeholder, target.nextSibling);
-    }
-    // Update placeholderIdx to reflect logical position among spineEls
-    const sibIdx = spineEls.indexOf(target);
-    placeholderIdx = insertBefore ? sibIdx : sibIdx + 1;
   }
 }
 
 function onPointerUp(e){
   document.removeEventListener('pointermove', onPointerMove);
   document.removeEventListener('pointerup',   onPointerUp);
-  if (!dragEl) return;
+
+  if (!isDragging) {
+    // Was a click — let the existing click listener handle it
+    pendingSpine = null;
+    return;
+  }
 
   const tray = document.getElementById('booksTray');
 
-  // Un-float the spine: restore it in-flow with its locked dimensions
+  // Snap: get where the placeholder ended up, animate dragEl flying there
+  const destRect = placeholder.getBoundingClientRect();
+  const curLeft  = parseFloat(dragEl.style.left);
+  const curTop   = parseFloat(dragEl.style.top);
+  const dx = destRect.left - curLeft;
+  const dy = destRect.top  - curTop;
+
+  // Instantly move to destination (no animation — snaps from hand position)
   dragEl.classList.remove('is-dragging');
-  const w = +dragEl.dataset.w;
-  const h = +dragEl.dataset.h;
   dragEl.style.position  = '';
   dragEl.style.left      = '';
   dragEl.style.top       = '';
+  dragEl.style.transform = '';
+  const w = +dragEl.dataset.w;
+  const h = +dragEl.dataset.h;
   dragEl.style.width     = w + 'px';
   dragEl.style.height    = h + 'px';
   dragEl.style.minWidth  = w + 'px';
@@ -415,20 +426,16 @@ function onPointerUp(e){
   placeholder.remove();
   placeholder = null;
 
-  // Re-sync spineEls[] and books[] to match the new DOM order
+  // Re-sync arrays
   const newSpineEls = [...tray.querySelectorAll('.book-spine')];
   const newBooks    = newSpineEls.map(el => books[+el.dataset.bookIdx]);
-
-  // Re-index dataset attributes
   newSpineEls.forEach((el, i) => { el.dataset.bookIdx = i; });
+  books    = newBooks;
+  spineEls = newSpineEls;
 
-  books     = newBooks;
-  spineEls  = newSpineEls;
-
-  dragEl = null;
-
-  // tiny delay so the click event that fires after pointerup sees wasDragging=true
-  setTimeout(() => { wasDragging = false; }, 50);
+  dragEl       = null;
+  pendingSpine = null;
+  isDragging   = false;
 }
 
 // ── INFO PANEL ──
