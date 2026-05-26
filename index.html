@@ -146,6 +146,21 @@ main{max-width:1500px;margin:0 auto;padding:2rem 1.5rem;}
 .info-meta{font-size:0.7rem;color:var(--text-dim);display:flex;flex-direction:column;gap:2px;margin-top:0.5rem;}
 
 @media(max-width:600px){.info-panel{left:1rem;right:1rem;width:auto;bottom:1rem;}}
+
+/* ── PARTICLES ── */
+.particle {
+  position: fixed;
+  pointer-events: none;
+  z-index: 99999;
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  animation: particleFly var(--dur, 0.6s) ease-out forwards;
+}
+@keyframes particleFly {
+  0%   { opacity: 1; transform: translate(0,0) rotate(0deg) scale(1); }
+  100% { opacity: 0; transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(0.3); }
+}
 </style>
 </head>
 <body>
@@ -271,8 +286,8 @@ function buildShelf(){
 
 function makeSpine(book, i, maxPages){
   const pages  = book.pages > 0 ? book.pages : 220;
-  const width  = Math.round(18 + ((pages / maxPages) * 26));
-  const height = spineH(book.title);
+  const width  = Math.round((18 + ((pages / maxPages) * 26)) * 1.5);
+  const height = Math.round(spineH(book.title) * 1.5);
   const pal    = PALETTES[palIdx(book.title)];
 
   const spine = document.createElement('div');
@@ -289,7 +304,8 @@ function makeSpine(book, i, maxPages){
   const inner = document.createElement('div');
   inner.className = 'book-spine-inner';
   inner.style.color = pal.text;
-  inner.style.maxHeight = (height-12)+'px';
+  inner.style.fontSize = '13px';
+  inner.style.maxHeight = (height-18)+'px';
   inner.textContent = book.title;
   spine.appendChild(inner);
 
@@ -426,6 +442,11 @@ function onPointerUp(e){
   placeholder.remove();
   placeholder = null;
 
+  // Particle burst at the drop point
+  const landRect = dragEl.getBoundingClientRect();
+  const pal = PALETTES[palIdx(books[+dragEl.dataset.bookIdx].title)];
+  spawnParticles(landRect.left + landRect.width / 2, landRect.top + landRect.height * 0.3, pal);
+
   // Re-sync arrays
   const newSpineEls = [...tray.querySelectorAll('.book-spine')];
   const newBooks    = newSpineEls.map(el => books[+el.dataset.bookIdx]);
@@ -438,7 +459,33 @@ function onPointerUp(e){
   isDragging   = false;
 }
 
-// ── INFO PANEL ──
+// ── PARTICLES ──
+function spawnParticles(x, y, palette) {
+  const colors = [...palette.bg, palette.text, '#d4a843', '#ffffff'];
+  const count = 14;
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.8;
+    const dist  = 30 + Math.random() * 55;
+    const tx    = Math.cos(angle) * dist;
+    const ty    = Math.sin(angle) * dist - 20; // bias upward
+    const dur   = 0.45 + Math.random() * 0.25;
+    const rot   = (Math.random() - 0.5) * 360;
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const size  = 4 + Math.random() * 6;
+    p.style.cssText = `
+      left:${x}px; top:${y}px;
+      width:${size}px; height:${size}px;
+      background:${color};
+      --tx:${tx}px; --ty:${ty}px; --rot:${rot}deg; --dur:${dur}s;
+    `;
+    document.body.appendChild(p);
+    p.addEventListener('animationend', () => p.remove(), {once: true});
+  }
+}
+
+
 function openPanel(book, spineEl){
   if (activeSpineEl === spineEl){ closePanel(); return; }
   if (activeSpineEl) activeSpineEl.classList.remove('spine-active');
